@@ -17,14 +17,15 @@ sync_to_github:
     - |
       if ! git merge --no-commit --no-ff --allow-unrelated-histories github/${GITHUB_BRANCH}; then
         echo "Merge conflict detected. Creating a Pull Request on GitHub."
+        git push github temp-branch --force
         curl -H "Authorization: token ${GITHUB_TOKEN}" \
              -X POST \
              -d "{\"title\":\"Merge conflict detected\",\"body\":\"There is a merge conflict between GitLab's production branch and GitHub's main branch.\",\"head\":\"temp-branch\",\"base\":\"${GITHUB_BRANCH}\"}" \
              https://api.github.com/repos/${GITHUB_REPO}/pulls
         exit 1
       fi
-    - git checkout ${GITHUB_BRANCH}
+    - git checkout -b temp-main github/${GITHUB_BRANCH}
     - git merge temp-branch
-    - git push github ${GITHUB_BRANCH}
+    - git push github temp-main:${GITHUB_BRANCH} --force
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
