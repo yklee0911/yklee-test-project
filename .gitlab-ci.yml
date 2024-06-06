@@ -17,6 +17,8 @@ sync_to_github:
       if ! git merge --allow-unrelated-histories origin/${CI_COMMIT_REF_NAME}; then
         echo "Merge conflict detected. Creating a temp-branch and a Pull Request on GitHub."
         git checkout -b temp-branch
+        git add .
+        git commit -m "Resolve merge conflicts"
         git push github temp-branch --force
         curl -H "Authorization: token ${GITHUB_TOKEN}" \
              -X POST \
