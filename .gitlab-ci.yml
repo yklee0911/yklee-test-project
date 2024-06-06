@@ -27,4 +27,4 @@ sync_to_github:
     - git merge temp-branch
     - git push github ${GITHUB_BRANCH}
   rules:
-    - if: '$CI_COMMIT_BRANCH == "min"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
