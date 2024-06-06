@@ -24,9 +24,10 @@ sync_to_github:
              -X POST \
              -d "{\"title\":\"Merge conflict detected\",\"body\":\"There is a merge conflict between GitLab's production branch and GitHub's main branch.\",\"head\":\"temp-branch\",\"base\":\"${GITHUB_BRANCH}\"}" \
              https://api.github.com/repos/${GITHUB_REPO}/pulls
-        exit 1
+        exit 0
       fi
-    - if ! git diff --quiet github/${GITHUB_BRANCH}; then
+    - |
+      if ! git diff --quiet github/${GITHUB_BRANCH}; then
         git push github temp-main:${GITHUB_BRANCH} --force
       else
         echo "No changes to push to GitHub main branch."
