@@ -23,6 +23,8 @@ sync_to_github:
              https://api.github.com/repos/${GITHUB_REPO}/pulls
         exit 1
       fi
-    - git push github temp-branch:${GITHUB_BRANCH} --force
+    - git checkout ${GITHUB_BRANCH}
+    - git merge temp-branch
+    - git push github ${GITHUB_BRANCH}
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "min"'
