@@ -8,8 +8,8 @@ variables:
 sync_to_github:
   stage: sync
   script:
-    - git config --global user.name 'yklee0911'
-    - git config --global user.email 'yundabal@gamil.com'
+    - git config --global user.name '@yundabal'
+    - git config --global user.email 'yundabal@gmail.com'
     - git remote add github https://yklee0911:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git
     - git fetch github ${GITHUB_BRANCH}
     - git checkout -b temp-branch
