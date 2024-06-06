@@ -1,0 +1,28 @@
+tages:
+  - sync
+
+variables:
+  GITHUB_REPO: "yklee0911/yklee-test-project"
+  GITHUB_BRANCH: "main"
+
+sync_to_github:
+  stage: sync
+  script:
+    - git config --global user.name 'yklee0911'
+    - git config --global user.email 'yundabal@gamil.com'
+    - git remote add github https://yklee0911:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git
+    - git fetch github ${GITHUB_BRANCH}
+    - git checkout -b temp-branch
+    - git push github temp-branch
+    - |
+      if ! git merge --no-commit --no-ff --allow-unrelated-histories github/${GITHUB_BRANCH}; then
+        echo "Merge conflict detected. Creating a Pull Request on GitHub."
+        curl -H "Authorization: token ${GITHUB_TOKEN}" \
+             -X POST \
+             -d "{\"title\":\"Merge conflict detected\",\"body\":\"There is a merge conflict between GitLab's production branch and GitHub's main branch.\",\"head\":\"temp-branch\",\"base\":\"${GITHUB_BRANCH}\"}" \
+             https://api.github.com/repos/${GITHUB_REPO}/pulls
+        exit 1
+      fi
+    - git push github temp-branch:${GITHUB_BRANCH} --force
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
