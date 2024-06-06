@@ -1,0 +1,35 @@
+stages:
+  - sync
+
+variables:
+  GITHUB_REPO: "yklee0911/yklee-test-project"
+  GITHUB_BRANCH: "main"
+
+sync_to_github:
+  stage: sync
+  script:
+    - git config --global user.name '@yundabal'
+    - git config --global user.email 'yundabal@gmail.com'
+    - git remote add github https://yklee0911:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git
+    - git fetch github ${GITHUB_BRANCH}
+    - git checkout -b temp-main github/${GITHUB_BRANCH}
+    - |
+      if ! git merge --allow-unrelated-histories origin/${CI_COMMIT_REF_NAME}; then
+        echo "Merge conflict detected. Creating a temp-branch and a Pull Request on GitHub."
+        git checkout -b temp-branch
+        git add .
+        git commit -m "Resolve merge conflicts"
+        git push github temp-branch --force
+        curl -H "Authorization: token ${GITHUB_TOKEN}" \
+             -X POST \
+             -d "{\"title\":\"Merge conflict detected\",\"body\":\"There is a merge conflict between GitLab's production branch and GitHub's main branch.\",\"head\":\"temp-branch\",\"base\":\"${GITHUB_BRANCH}\"}" \
+             https://api.github.com/repos/${GITHUB_REPO}/pulls
+        exit 1
+      fi
+    - if ! git diff --quiet github/${GITHUB_BRANCH}; then
+        git push github temp-main:${GITHUB_BRANCH} --force
+      else
+        echo "No changes to push to GitHub main branch."
+      fi
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
