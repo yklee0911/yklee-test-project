@@ -12,7 +12,7 @@ sync_to_github:
     - git config --global user.email 'yundabal@gmail.com'
     - git remote add github https://yklee0911:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git
     - git fetch github ${GITHUB_BRANCH}
-    - git checkout -b temp-branch
+    - git checkout -b temp-branch github/${GITHUB_BRANCH}
     - git push github temp-branch
     - |
       if ! git merge --no-commit --no-ff --allow-unrelated-histories github/${GITHUB_BRANCH}; then
